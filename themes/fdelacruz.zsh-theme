@@ -22,14 +22,24 @@ RESET_COLOR=$reset_color
 local return_code="%(?..%{$RED%}%? ↵%{$RESET_COLOR%})"
 
 function my_git_prompt_info() {
-  ref=$(git symbolic-ref HEAD 2> /dev/null) || return
+  ref=$((git symbolic-ref -q HEAD || git name-rev --name-only --no-undefined --always HEAD) 2> /dev/null)
   SHORT_SHA=%{$CYAN%}$(git_prompt_short_sha)%{$RESET_COLOR%}
   GIT_STATUS=$(git_prompt_status)
   [[ -n $GIT_STATUS ]] && GIT_STATUS="$GIT_STATUS"
   echo "%{$GREEN%}$ZSH_THEME_GIT_PROMPT_PREFIX${ref#refs/heads/}:%{$RESET_COLOR%}$SHORT_SHA$GIT_STATUS%{$GREEN%}$ZSH_THEME_GIT_PROMPT_SUFFIX"
 }
 
-PROMPT='[%n@%m %2~$(my_git_prompt_info)%{$RESET_COLOR%}]%# '
+function check_git_prompt_info() {
+  if git rev-parse --git-dir > /dev/null 2>&1; then
+    if [[ -z $(git_prompt_info) ]]; then
+        echo "%{$fg[magenta]%}detached-head%{$reset_color%}"
+    else
+        echo "$(my_git_prompt_info)"
+    fi
+  fi
+}
+
+PROMPT='[%n@%m %2~$(check_git_prompt_info)%{$RESET_COLOR%}]%# '
 # RPS1="${return_code}"
 
 ZSH_THEME_GIT_PROMPT_PREFIX="("
