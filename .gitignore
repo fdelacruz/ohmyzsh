@@ -19,3 +19,4 @@ log/
 # zcompile cached files
 *.zwc
 *.zwc.old
+!custom/themes
