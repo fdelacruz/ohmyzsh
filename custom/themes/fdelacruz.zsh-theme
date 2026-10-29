@@ -37,13 +37,17 @@ function check_git_prompt_info() {
     echo "%{$fg[magenta]%}detached-head%{$reset_color%}"
   fi
 }
+
 _fishy_collapsed_wd() {
-  echo $(pwd | perl -pe '
-   BEGIN {
-      binmode STDIN,  ":encoding(UTF-8)";
-      binmode STDOUT, ":encoding(UTF-8)";
-   }; s|^$ENV{HOME}|~|g; s|/([^/.])[^/]*(?=/)|/$1|g; s|/\.([^/])[^/]*(?=/)|/.$1|g
-')
+  local -a parts=("${(@s:/:)${(%):-%~}}")
+  local out part i n
+  for ((i = 1; i < $#parts; i++)); do
+    part=$parts[i]
+    [[ $part == (|'~') ]] && { out+="$part/"; continue; }
+    [[ $part == .* ]] && n=2 || n=1
+    out+="${part[1,n]}/"
+  done
+  print -rn -- "$out${parts[-1]}"
 }
 
 PROMPT='[%n@%m $(_fishy_collapsed_wd)$(check_git_prompt_info)%{$RESET_COLOR%}]%# '
