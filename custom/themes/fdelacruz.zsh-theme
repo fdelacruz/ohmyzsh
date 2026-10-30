@@ -31,11 +31,7 @@ function my_git_prompt_info() {
 
 function check_git_prompt_info() {
   git rev-parse --is-inside-work-tree &>/dev/null || return
-  if git symbolic-ref -q HEAD &>/dev/null; then
-    my_git_prompt_info
-  else
-    echo "%{$fg[magenta]%}detached-head%{$reset_color%}"
-  fi
+  my_git_prompt_info
 }
 
 _fishy_collapsed_wd() {
